@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>👑 稱霸為城堡之王 (主選單選優版) 🏰</title>
+    <style>
+        :root {
+            --grid-bg: #8cbd6c;
+            --grid-line: #7aa35e;
+            --ui-bg: #2c3e50;
+            --ui-text: #ecf0f1;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ui-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            height: 100dvh; 
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* 👑 FC 風格遊戲初始主選單 👑 */
+        #title-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #111111;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .title-logo {
+            text-align: center;
+            animation: menuPulse 2s infinite ease-in-out;
+        }
+
+        .title-logo h1 {
+            color: #f1c40f;
+            font-size: 28px;
+            margin: 0;
+            text-shadow: 3px 3px 0px #c0392b;
+            letter-spacing: 2px;
+        }
+
+        .title-logo p {
+            color: #bdc3c7;
+            font-size: 13px;
+            margin: 5px 0 0 0;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 200px;
+        }
+
+        .menu-btn {
+            background: #2c3e50;
+            color: #f1c40f;
+            border: 2px solid #f1c40f;
+            padding: 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 0px #7f8c8d;
+            transition: all 0.1s ease;
+        }
+
+        .menu-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0px #7f8c8d;
+        }
+
+        @keyframes menuPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* 遊戲核心容器 */
+        .game-container {
+            background: #34495e;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 95vw;
+            max-width: 380px;
+            max-height: 98vh;
+            max-height: 98dvh;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            width: 100%;
+        }
+
+        h1 {
+            margin: 0 0 2px 0;
+            font-size: 16px;
+            color: #f1c40f;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .save-load-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+        .save-btn {
+            flex: 1;
+            background: #16a085;
+            color: white;
+            border: none;
+            padding: 4px 0;
+            font-size: 9.5px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .load-btn {
+            flex: 1;
+            background: #2980b9;
+            color: white;
+            border: none;
+            padding: 4px 0;
+            font-size: 9.5px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            padding: 4px 8px;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-weight: bold;
+            font-size: 11px;
+            border: 1px solid #455a64;
+        }
+
+        .gold-display { color: #f39c12; }
+        .round-display { color: #5dade2; }
+
+        #game-stage {
+            position: relative;
+            background: var(--grid-bg);
+            border: 3px solid #2e4053;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            width: 320px;  
+            height: 320px; 
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+            flex-shrink: 0; 
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .shop-title {
+            font-size: 11px;
+            border-left: 4px solid #e74c3c;
+            padding-left: 5px;
+            margin: 0;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+        }
+
+        .shop-btn {
+            background: #2c3e50;
+            border: 1.5px solid #7f8c8d;
+            color: white;
+            padding: 5px 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+
+        .shop-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .button-row { display: flex; gap: 6px; width: 100%; }
+
+        .action-btn {
+            flex: 2; background: #e67e22; color: white; border: none; padding: 6px;
+            font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer;
+        }
+
+        .rotate-btn {
+            flex: 1; background: #3498db; color: white; border: none; padding: 6px;
+            font-size: 12px; font-weight: bold; border-radius: 6px; cursor: pointer;
+        }
+        .rotate-btn:disabled { background: #7f8c8d; opacity: 0.5; }
+
+        .action-btn.battle { background: #c0392b; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        .rogue-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 26, 26, 0.96);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .rogue-overlay.active { opacity: 1; pointer-events: auto; }
+        .rogue-title { color: #f1c40f; font-size: 15px; font-weight: bold; margin-bottom: 10px; text-align: center; }
+        .card-container { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .rogue-card {
+            background: #2c3e50; border: 1.5px solid #f1c40f; border-radius: 8px;
+            padding: 8px 12px; cursor: pointer; text-align: left;
+        }
+        .card-name { font-weight: bold; color: #2ecc71; font-size: 12px; margin-bottom: 2px; }
+        .card-desc { font-size: 11px; color: #bdc3c7; line-height: 1.2; }
+
+        .active-buffs { font-size: 11px; color: #1abc9c; text-align: center; width: 100%; }
+    </style>
+</head>
+<body>
+
+<!-- 🎮 初始主選單 🎮 -->
+<div id="title-screen">
+    <div class="title-logo">
+        <canvas id="title-castle-img" aria-label="城堡之王" style="width:110px;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.5));"></canvas>
+        <h1>👑 城堡之王 🏰</h1>
+        <p>10x10 RETRO EDITION</p>
+    </div>
+    <div class="menu-buttons">
+        <button class="menu-btn" onclick="startNewGame()">🕹️ NEW GAME</button>
+        <button class="menu-btn" onclick="triggerMenuLoad()">📂 LOAD GAME (檔案)</button>
+    </div>
+</div>
+
+<div class="game-container" onclick="unlockAudioContext()">
+    <!-- 隱藏的檔案上傳點 -->
+    <input type="file" id="fileInput" accept=".json,application/json,text/plain,text/json" style="display: none;" onchange="importSaveGame(event)">
+
+    <div id="rogueModal" class="rogue-overlay">
+        <div class="rogue-title">🔮 國王御賜！選擇一項皇家科技 🔮</div>
+        <div id="cardList" class="card-container"></div>
+    </div>
+
+    <header>
+        <h1>👑 城堡之王 (10x10 音效配樂版)</h1>
+        <div class="save-load-row">
+            <button class="save-btn" onclick="exportSaveGame()">💾 匯出存檔</button>
+            <button class="load-btn" onclick="document.getElementById('fileInput').click()">📂 匯入檔案</button>
+            <button class="load-btn" style="background:#8e44ad;" onclick="promptPasteImport()">📋 貼上存檔</button>
+        </div>
+        <div class="save-load-row">
+            <button id="mute-trigger" class="load-btn" style="background:#34495e;" onclick="toggleMute()">🔊 音效開</button>
+        </div>
+        <div id="phase-title" style="color: #2ecc71; font-weight: bold; font-size: 12px; margin-bottom: 2px;">🍀【備戰時刻】🍀</div>
+    </header>
+
+    <div class="status-bar">
+        <span class="gold-display">🪙 金幣: <span id="gold-val">150</span> (<span id="income-val">25</span>/回)</span>
+        <span class="round-display">👾 波次: <span id="round-val">1</span></span>
+    </div>
+
+    <div id="game-stage">
+        <canvas id="gameCanvas" width="320" height="320"></canvas>
+    </div>
+
+    <div id="buff-display" class="active-buffs">目前科技: 無</div>
+
+    <div class="controls">
+        <div class="shop-title">🔨 皇家工坊</div>
+        <div class="shop-items">
+            <button class="shop-btn" onclick="selectBuilding('wall')">🧱 防禦木柵 (🪙10)</button>
+            <button class="shop-btn" onclick="selectBuilding('barracks')">⚔️ 皇家兵營 (🪙25)</button>
+            <button class="shop-btn" onclick="selectBuilding('stables')">🐴 騎士馬廄 (🪙20)</button>
+            <button class="shop-btn" onclick="selectBuilding('cauldron')">🧪 藥水鍋 (🪙15)</button>
+        </div>
+
+        <div class="button-row">
+            <button id="rotate-trigger" class="rotate-btn" onclick="rotateBuilding()">🔄 旋轉</button>
+            <button id="action-trigger" class="action-btn" onclick="togglePhase()">⚔️ 開始戰鬥 ⚔️</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 🖼️ 【美術資源：外部精靈圖 city_sprites.png】
+    // 座標對照表：[x, y, w, h]（在精靈圖中的位置與尺寸）
+    // ==========================================
+    const SPRITE_SHEET_SRC = 'city_sprites.png';
+    const SPRITE_RECT = {
+        barracks_bld: [2, 2, 211, 220],
+        stables_bld: [215, 2, 201, 220],
+        castle: [418, 2, 174, 168],
+        wall: [2, 224, 66, 150],
+        infantry: [70, 224, 71, 150],
+        cavalry: [143, 224, 82, 114],
+        dummy: [227, 224, 74, 100],
+        potion_proj: [303, 224, 112, 93],
+        golem: [417, 224, 93, 93],
+        ghost: [512, 224, 71, 89],
+        cauldron_bld: [2, 376, 58, 85],
+        slime: [62, 376, 94, 69]
+    };
+    const IMAGES = {};
+    let imagesReady = false;
+    function preloadImages() {
+        return new Promise(resolve => {
+            const sheet = new Image();
+            const finish = () => { imagesReady = true; resolve(); };
+            sheet.onload = () => {
+                const keys = Object.keys(SPRITE_RECT);
+                keys.forEach(k => {
+                    const [sx, sy, sw, sh] = SPRITE_RECT[k];
+                    const off = document.createElement('canvas');
+                    off.width = sw; off.height = sh;
+                    off.getContext('2d').drawImage(sheet, sx, sy, sw, sh, 0, 0, sw, sh);
+                    // 讓 canvas 相容於原本判斷式 (img.complete && img.naturalWidth > 0)
+                    off.complete = true;
+                    off.naturalWidth = sw;
+                    off.naturalHeight = sh;
+                    IMAGES[k] = off;
+                    if (k === 'castle') {
+                        const titleCanvas = document.getElementById('title-castle-img');
+                        titleCanvas.width = sw; titleCanvas.height = sh;
+                        titleCanvas.getContext('2d').drawImage(sheet, sx, sy, sw, sh, 0, 0, sw, sh);
+                    }
+                });
+                finish();
+            };
+            sheet.onerror = finish;
+            sheet.src = SPRITE_SHEET_SRC;
+        });
+    }
+    // ==========================================
+    // 🎵 【FC 8-Bit 音效與配樂引擎】
+    // ==========================================
+    let audioCtx = null;
+    let bgmInterval = null;
+    let bgmStep = 0;
+    let isBgmPlaying = false;
+    let masterGain = null;
+    let isMuted = false;
+
+    const BGM_MELODY = [
+        196, 220, 261, 293, 329, 329, 329, 0,
+        293, 293, 293, 0, 329, 392, 392, 0,
+        261, 293, 329, 349, 392, 392, 392, 0,
+        349, 349, 349, 293, 261, 196, 261, 0
+    ];
+
+    function unlockAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = isMuted ? 0 : 1;
+            masterGain.connect(audioCtx.destination);
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        unlockAudioContext();
+        if (masterGain) masterGain.gain.value = isMuted ? 0 : 1;
+        const btn = document.getElementById('mute-trigger');
+        if (btn) btn.innerText = isMuted ? '🔇 靜音中' : '🔊 音效開';
+        if (!isMuted) play8BitSound('click');
+    }
+
+    function play8BitSound(type) {
+        if (!audioCtx) return;
+        unlockAudioContext();
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(masterGain || audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'build') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+            gainNode.gain.setValueAtTime(0.15, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 0.12);
+            osc.start(now); osc.stop(now + 0.12);
+        } 
+        else if (type === 'shoot') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        } 
+        else if (type === 'hit') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(120, now);
+            osc.frequency.linearRampToValueAtTime(40, now + 0.15);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now); osc.stop(now + 0.15);
+        }
+        else if (type === 'click') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(440, now);
+            gainNode.gain.setValueAtTime(0.08, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 0.05);
+            osc.start(now); osc.stop(now + 0.05);
+        }
+        else if (type === 'upgrade') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(261.6, now);
+            osc.frequency.setValueAtTime(329.6, now + 0.06);
+            osc.frequency.setValueAtTime(392.0, now + 0.12);
+            osc.frequency.setValueAtTime(523.3, now + 0.18);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        }
+    }
+
+    function startBpmMusic() {
+        if (!audioCtx || isBgmPlaying) return;
+        isBgmPlaying = true;
+        bgmStep = 0;
+        bgmInterval = setInterval(() => {
+            const freq = BGM_MELODY[bgmStep];
+            if (freq > 0 && audioCtx) {
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
+                osc.connect(gainNode); gainNode.connect(masterGain || audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.18);
+            }
+            bgmStep = (bgmStep + 1) % BGM_MELODY.length;
+        }, 200);
+    }
+
+    function stopBpmMusic() {
+        if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+        isBgmPlaying = false;
+    }
+
+    // ==========================================
+    // 🕹️ 【主選單畫面功能控制】
+    // ==========================================
+    function startNewGame() {
+        unlockAudioContext();   
+        play8BitSound('upgrade'); 
+        document.getElementById('title-screen').style.display = 'none'; 
+    }
+
+    function triggerMenuLoad() {
+        unlockAudioContext();
+        play8BitSound('click');
+        document.getElementById('fileInput').click();
+    }
+
+    // ==========================================
+    // 🎮 【10x10 遊戲核心邏輯整合】
+    // ==========================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const COLS = 10; 
+    const ROWS = 10; 
+    const CELL_SIZE = 32; 
+
+    let buffs = { rageHorn: false, goldMania: 0, cauldronAwake: false, meteorShower: false, humanWave: false };
+    let gameState = { gold: 150, baseIncome: 25, round: 1, phase: 'PREPARE', grid: Array(ROWS).fill().map(() => Array(COLS).fill(null)), selectedType: null, rotation: 0, projectiles: [], enemies: [], soldiers: [] };
+
+    const ALL_BUFFS = [
+        { id: 'holyShield', name: '✨ 聖光護體', desc: '主城堡立刻修復 200 HP，且最大生命上限永久增加 150！' },
+        { id: 'rageHorn', name: '📯 狂暴號角', desc: '全體召喚出的步兵與騎兵，移動速度與攻擊力永久翻倍！' },
+        { id: 'goldMania', name: '💰 黃金狂熱', desc: '每回合的基礎金幣固定收益永久 +20。' },
+        { id: 'cauldronAwake', name: '🧪 劇毒覺醒', desc: '藥水鍋獲得秘術改造，射擊範圍增加 50%，且射速提高一倍！' },
+        { id: 'meteorShower', name: '☄️ 天降隕石', desc: '戰鬥剛開始時，上天會召喚兩顆巨大隕石，直接砸死隨機兩隻怪物！' },
+        { id: 'humanWave', name: '🚩 人海戰術', desc: '兵營與馬廄生產小兵的冷卻時間縮短 50%。' }
+    ];
+
+    const BUILDING_TYPES = {
+        castle: { name: '🏰', img: 'castle', cost: 0, color: '#3498db', hp: 500, maxHp: 500, shape: [[0,0], [1,0], [0,1], [1,1]], type: 'castle' },
+        wall: { name: '🧱', img: 'wall', cost: 10, color: '#d35400', hp: 400, maxHp: 400, shape: [[0,0], [0,1], [0,2]], type: 'wall', income: 2 },
+        barracks: { name: '⚔️', img: 'barracks_bld', cost: 25, color: '#e67e22', hp: 250, maxHp: 250, shape: [[0,0], [1,0], [0,1], [1,1]], type: 'barracks', spawnType: 'infantry', spawnSpeed: 100 },
+        stables: { name: '🐴', img: 'stables_bld', cost: 20, color: '#f1c40f', hp: 200, maxHp: 200, shape: [[0,0], [0,1], [1,1]], type: 'stables', spawnType: 'cavalry', spawnSpeed: 140, income: 5 },
+        cauldron: { name: '🧪', img: 'cauldron_bld', cost: 15, color: '#9b59b6', hp: 150, maxHp: 150, shape: [[0,0]], type: 'cauldron', range: 5.5, attack: 4, speed: 25 }
+    };
+
+    function initGame() {
+        const c = BUILDING_TYPES.castle;
+        const startX = 4; const startY = 4;
+        const instance = { ...c, id: 'castle_' + Date.now(), x: startX, y: startY, currentHp: c.hp };
+        c.shape.forEach(offset => { gameState.grid[startY + offset[1]][startX + offset[0]] = instance; });
+        updateUI(); updateBuffDisplay();
+    }
+
+    // ⚡【修正點：改用 Blob + ObjectURL 匯出，並提供文字備援，解決部分瀏覽器/WebView 無法下載的問題】⚡
+    function buildSaveDataString() {
+        const uniqueBuildings = []; const savedIds = new Set();
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const b = gameState.grid[r][c];
+                if (b && !savedIds.has(b.id)) {
+                    savedIds.add(b.id);
+                    uniqueBuildings.push({ id: b.id, type: b.type, x: b.x, y: b.y, currentHp: b.currentHp, maxHp: b.maxHp, rotatedShape: b.rotatedShape || null, rotation: b.rotation || 0 });
+                }
+            }
+        }
+        const saveData = { gold: gameState.gold, round: gameState.round, buffs: buffs, buildings: uniqueBuildings };
+        return JSON.stringify(saveData);
+    }
+
+    function exportSaveGame() {
+        play8BitSound('click');
+        if (gameState.phase !== 'PREPARE') { alert('⚠️ 請在【備戰時刻】再匯出存檔！'); return; }
+        const jsonStr = buildSaveDataString();
+        let downloadWorked = false;
+        try {
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '城堡之王存檔.json';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+            downloadWorked = true;
+        } catch (err) {
+            downloadWorked = false;
+        }
+        // 無論下載是否成功，都同步顯示文字備援視窗，確保一定能取得存檔內容
+        showSaveTextModal(jsonStr, downloadWorked);
+    }
+
+    function showSaveTextModal(jsonStr, downloadWorked) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;';
+        overlay.innerHTML = `
+            <div style="background:#2c3e50;border:2px solid #f1c40f;border-radius:10px;padding:14px;width:100%;max-width:340px;box-sizing:border-box;">
+                <div style="color:#f1c40f;font-weight:bold;font-size:13px;margin-bottom:8px;">
+                    ${downloadWorked ? '💾 已嘗試下載檔案！若手機沒跳出下載，請複製下方文字備份：' : '⚠️ 自動下載失敗，請手動複製下方存檔文字：'}
+                </div>
+                <textarea readonly style="width:100%;height:120px;font-size:10px;background:#1a1a1a;color:#ecf0f1;border:1px solid #7f8c8d;border-radius:6px;padding:6px;box-sizing:border-box;">${jsonStr}</textarea>
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                    <button id="copySaveBtn" style="flex:1;background:#16a085;color:white;border:none;padding:8px;border-radius:6px;font-size:12px;font-weight:bold;">📋 複製文字</button>
+                    <button id="closeSaveBtn" style="flex:1;background:#7f8c8d;color:white;border:none;padding:8px;border-radius:6px;font-size:12px;font-weight:bold;">關閉</button>
+                </div>
+            </div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#copySaveBtn').onclick = () => {
+            const ta = overlay.querySelector('textarea');
+            ta.select(); ta.setSelectionRange(0, 99999);
+            try { navigator.clipboard ? navigator.clipboard.writeText(jsonStr) : document.execCommand('copy'); alert('✅ 已複製到剪貼簿！'); }
+            catch (e) { alert('請手動選取文字後複製'); }
+        };
+        overlay.querySelector('#closeSaveBtn').onclick = () => overlay.remove();
+    }
+
+    function loadSaveData(data) {
+        if (!data || !data.hasOwnProperty('gold') || !data.hasOwnProperty('buildings')) throw new Error('格式錯誤');
+
+        gameState.gold = data.gold; gameState.round = data.round || 1; gameState.phase = 'PREPARE';
+        gameState.soldiers = []; gameState.enemies = []; gameState.projectiles = [];
+        buffs = data.buffs || { rageHorn: false, goldMania: 0, cauldronAwake: false, meteorShower: false, humanWave: false };
+        gameState.grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+
+        data.buildings.forEach(b => {
+            const proto = BUILDING_TYPES[b.type];
+            if (!proto) return;
+            const instance = { ...proto, id: b.id, x: b.x, y: b.y, currentHp: b.currentHp, maxHp: b.maxHp, rotatedShape: b.rotatedShape, rotation: b.rotation || 0 };
+            const shapeToUse = b.type === 'castle' ? proto.shape : (b.rotatedShape || proto.shape);
+            shapeToUse.forEach(offset => {
+                const tx = b.x + offset[0]; const ty = b.y + offset[1];
+                if (tx >= 0 && tx < COLS && ty >= 0 && ty < ROWS) gameState.grid[ty][tx] = instance;
+            });
+        });
+
+        document.getElementById('action-trigger').disabled = false;
+        document.getElementById('action-trigger').classList.remove('battle');
+        document.getElementById('action-trigger').innerText = '⚔️ 開始戰鬥 ⚔️';
+        document.getElementById('phase-title').innerText = '🍀【備戰時刻】🍀';
+        document.getElementById('phase-title').style.color = '#2ecc71';
+
+        stopBpmMusic(); updateUI(); updateBuffDisplay();
+        play8BitSound('upgrade');
+
+        document.getElementById('title-screen').style.display = 'none';
+    }
+
+    function importSaveGame(event) {
+        const file = event.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                loadSaveData(data);
+                alert('📂 存檔成功匯入！已順利進入戰場！');
+            } catch (err) {
+                alert('❌ 匯入失敗：存檔內部資料損毀或格式不符！(' + err.message + ')');
+            }
+        };
+        reader.onerror = function() { alert('❌ 讀取檔案失敗，請改用「📋 貼上存檔」功能。'); };
+        reader.readAsText(file);
+        event.target.value = ''; // 重置 fileInput
+    }
+
+    // 備援匯入：直接貼上存檔 JSON 文字，適用於檔案總管/下載功能受限的手機瀏覽器或 WebView
+    function promptPasteImport() {
+        play8BitSound('click');
+        const text = prompt('📋 請貼上先前複製的存檔 JSON 文字：');
+        if (!text) return;
+        try {
+            const data = JSON.parse(text);
+            loadSaveData(data);
+            alert('📂 存檔成功匯入！已順利進入戰場！');
+        } catch (err) {
+            alert('❌ 匯入失敗：貼上的文字不是有效的存檔格式！(' + err.message + ')');
+        }
+    }
+
+    function updateBuffDisplay() {
+        let activeList = [];
+        if (buffs.rageHorn) activeList.push("📯狂暴");
+        if (buffs.goldMania > 0) activeList.push(`💰+${buffs.goldMania}`);
+        if (buffs.cauldronAwake) activeList.push("🧪藥水");
+        if (buffs.meteorShower) activeList.push("☄️隕石");
+        if (buffs.humanWave) activeList.push("🚩人海");
+        document.getElementById('buff-display').innerText = "目前科技: " + (activeList.length ? activeList.join(" | ") : "無");
+    }
+
+    function triggerRogueChoice() {
+        const modal = document.getElementById('rogueModal'); const cardList = document.getElementById('cardList');
+        cardList.innerHTML = ''; const shuffled = [...ALL_BUFFS].sort(() => 0.5 - Math.random());
+        shuffled.slice(0, 3).forEach(card => {
+            const cardEl = document.createElement('div'); cardEl.className = 'rogue-card';
+            cardEl.innerHTML = `<div class="card-name">${card.name}</div><div class="card-desc">${card.desc}</div>`;
+            cardEl.onclick = () => applyBuff(card.id); cardList.appendChild(cardEl);
+        });
+        modal.classList.add('active');
+    }
+
+    function applyBuff(buffId) {
+        play8BitSound('upgrade');
+        if (buffId === 'holyShield') {
+            for(let r=0; r<ROWS; r++) {
+                for(let c=0; c<COLS; c++) {
+                    if(gameState.grid[r][c] && gameState.grid[r][c].type === 'castle') {
+                        let castle = gameState.grid[r][c]; castle.maxHp += 150; castle.currentHp = Math.min(castle.maxHp, castle.currentHp + 200);
+                    }
+                }
+            }
+        } else if (buffId === 'goldMania') { buffs.goldMania += 20; } else { buffs[buffId] = true; }
+        updateBuffDisplay(); document.getElementById('rogueModal').classList.remove('active');
+        gameState.gold += calculateIncome(); gameState.round++; gameState.soldiers = []; updateUI();
+    }
+
+    function togglePhase() {
+        unlockAudioContext();
+        const trigger = document.getElementById('action-trigger'); const phaseTitle = document.getElementById('phase-title');
+        if (gameState.phase === 'PREPARE') {
+            gameState.phase = 'BATTLE'; gameState.selectedType = null; document.getElementById('rotate-trigger').disabled = true;
+            phaseTitle.innerText = '⚠️【戰鬥時刻】強敵突襲中！'; phaseTitle.style.color = '#e74c3c';
+            trigger.innerText = '💥 戰鬥中... 💥'; trigger.disabled = true; trigger.classList.add('battle');
+            
+            startBpmMusic(); spawnEnemies();
+            
+            if (buffs.meteorShower && gameState.enemies.length > 0) {
+                setTimeout(() => {
+                    play8BitSound('hit');
+                    for(let i=0; i<2; i++) { if(gameState.enemies[i]) gameState.enemies[i].hp = 0; }
+                }, 400);
+            }
+        } else {
+            gameState.phase = 'PREPARE'; phaseTitle.innerText = '🍀【備戰時刻】🍀'; phaseTitle.style.color = '#2ecc71';
+            trigger.innerText = '⚔️ 開始戰鬥 ⚔️'; trigger.disabled = false; trigger.classList.remove('battle');
+            stopBpmMusic(); triggerRogueChoice();
+        }
+    }
+
+    function calculateIncome() {
+        let extra = 0; const counted = new Set();
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const b = gameState.grid[r][c]; if (b && b.income && !counted.has(b.id)) { extra += b.income; counted.add(b.id); }
+            }
+        }
+        return gameState.baseIncome + extra + buffs.goldMania;
+    }
+
+    function spawnEnemies() {
+        const count = 3 + gameState.round * 2; const enemyImgs = ['ghost', 'slime', 'dummy', 'golem'];
+        for (let i = 0; i < count; i++) {
+            let x, y; const side = Math.floor(Math.random() * 4);
+            if (side === 0) { x = Math.random() * canvas.width; y = -15; }
+            else if (side === 1) { x = canvas.width + 15; y = Math.random() * canvas.height; }
+            else if (side === 2) { x = Math.random() * canvas.width; y = canvas.height + 15; }
+            else { x = -15; y = Math.random() * canvas.height; }
+            gameState.enemies.push({ x: x, y: y, hp: 10 + gameState.round * 2.5, maxHp: 10 + gameState.round * 2.5, speed: 0.5 + Math.random() * 0.4, img: enemyImgs[Math.floor(Math.random() * enemyImgs.length)], targetX: (COLS*CELL_SIZE)/2, targetY: (ROWS*CELL_SIZE)/2 });
+        }
+    }
+
+    function spawnSoldier(x, y, type) {
+        let speedMult = buffs.rageHorn ? 2 : 1; let atkMult = buffs.rageHorn ? 2 : 1;
+        if (type === 'infantry') { gameState.soldiers.push({ x: x, y: y, hp: 60, maxHp: 60, speed: 0.8 * speedMult, attack: 3 * atkMult, img: 'infantry' }); }
+        else if (type === 'cavalry') { gameState.soldiers.push({ x: x, y: y, hp: 40, maxHp: 40, speed: 1.8 * speedMult, attack: 6 * atkMult, img: 'cavalry' }); }
+    }
+
+    function updateLogic() {
+        if (gameState.phase !== 'BATTLE') return;
+        const countedBuildings = new Set();
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const b = gameState.grid[r][c];
+                if (b && b.spawnType && !countedBuildings.has(b.id)) {
+                    countedBuildings.add(b.id); let finalSpawnSpeed = buffs.humanWave ? b.spawnSpeed / 2 : b.spawnSpeed;
+                    if (frameCount % Math.floor(finalSpawnSpeed) === 0) spawnSoldier(b.x * CELL_SIZE + CELL_SIZE/2, b.y * CELL_SIZE + CELL_SIZE/2, b.spawnType);
+                }
+            }
+        }
+        const countedTowers = new Set();
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const b = gameState.grid[r][c];
+                if (b && b.attack && !b.spawnType && !countedTowers.has(b.id)) {
+                    countedTowers.add(b.id); let finalSpeed = buffs.cauldronAwake ? b.speed / 2 : b.speed; let finalRange = buffs.cauldronAwake ? b.range * 1.5 : b.range;
+                    if (frameCount % Math.floor(finalSpeed) === 0 && gameState.enemies.length > 0) {
+                        let nearestEnemy = null; let minDist = Infinity; const bx = b.x * CELL_SIZE + CELL_SIZE/2; const by = b.y * CELL_SIZE + CELL_SIZE/2;
+                        gameState.enemies.forEach(e => { const d = Math.hypot(e.x - bx, e.y - by) / CELL_SIZE; if (d < finalRange && d < minDist) { minDist = d; nearestEnemy = e; } });
+                        if (nearestEnemy) { play8BitSound('shoot'); gameState.projectiles.push({ x: bx, y: by, tx: nearestEnemy.x, ty: nearestEnemy.y, speed: 6, targetEnemy: nearestEnemy, attack: b.attack, img: 'potion_proj' }); }
+                    }
+                }
+            }
+        }
+        gameState.soldiers.forEach(soldier => {
+            if (gameState.enemies.length > 0) {
+                let nearestEnemy = null; let minDist = Infinity; gameState.enemies.forEach(e => { const d = Math.hypot(e.x - soldier.x, e.y - soldier.y); if (d < minDist) { minDist = d; nearestEnemy = e; } });
+                if (nearestEnemy) { const dx = nearestEnemy.x - soldier.x; const dy = nearestEnemy.y - soldier.y; soldier.x += (dx / minDist) * soldier.speed; soldier.y += (dy / minDist) * soldier.speed; if (minDist < 12) { nearestEnemy.hp -= soldier.attack; soldier.hp -= 1.5; if(frameCount%15===0) play8BitSound('hit'); } }
+            }
+        });
+        gameState.soldiers = gameState.soldiers.filter(s => s.hp > 0);
+        gameState.enemies.forEach((enemy) => {
+            const dx = enemy.targetX - enemy.x; const dy = enemy.targetY - enemy.y; const dist = Math.hypot(dx, dy); if (dist > 4) { enemy.x += (dx / dist) * enemy.speed; enemy.y += (dy / dist) * enemy.speed; }
+            const gX = Math.floor(enemy.x / CELL_SIZE); const gY = Math.floor(enemy.y / CELL_SIZE);
+            if (gX >= 0 && gX < COLS && gY >= 0 && gY < ROWS) { const b = gameState.grid[gY][gX]; if (b) { b.currentHp -= 0.25; enemy.hp -= 0.4; if(frameCount%20===0) play8BitSound('hit'); if (b.currentHp <= 0) removeBuilding(b.id); } }
+        });
+        gameState.enemies = gameState.enemies.filter(e => e.hp > 0);
+        gameState.projectiles.forEach(p => { const dx = p.tx - p.x; const dy = p.ty - p.y; const d = Math.hypot(dx, dy); if (d < 6) { if (gameState.enemies.includes(p.targetEnemy)) { p.targetEnemy.hp -= p.attack; play8BitSound('hit'); } p.dead = true; } else { p.x += (dx / d) * p.speed; p.y += (dy / d) * p.speed; } });
+        gameState.projectiles = gameState.projectiles.filter(p => !p.dead);
+        if (gameState.enemies.length === 0) togglePhase();
+        let castleAlive = false;
+        for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { if (gameState.grid[r][c] && gameState.grid[r][c].type === 'castle') castleAlive = true; } }
+        if (!castleAlive) { stopBpmMusic(); alert("😭 城堡已被攻陷！\n👑 一共成功守護了 " + gameState.round + " 個波次！"); location.reload(); }
+    }
+
+    // 用標準 2D 旋轉矩陣直接把每個佔用格子的座標轉向，這樣不管是直線（柵欄）、
+    // 正方形（兵營/城堡）、L型（馬廄）還是單格（藥水鍋）都能統一、正確地旋轉，
+    // 不需要為不同形狀寫特殊處理。旋轉後可能出現負座標，這沒關係，
+    // 下游計算 bounding box（minX/minY）與碰撞判定時本來就會正確處理任意正負偏移。
+    function getRotatedShape(shape, rotation) {
+        return shape.map(([dx, dy]) => {
+            if (rotation === 90) return [-dy, dx];
+            if (rotation === 180) return [-dx, -dy];
+            if (rotation === 270) return [dy, -dx];
+            return [dx, dy];
+        });
+    }
+    function rotateBuilding() { play8BitSound('click'); if (gameState.phase !== 'PREPARE' || !gameState.selectedType) return; gameState.rotation = (gameState.rotation + 90) % 360; }
+    function getGridCoords(e) { const rect = canvas.getBoundingClientRect(); const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height; let clientX = e.touches ? e.touches[0].clientX : e.clientX; let clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: Math.floor((clientX - rect.left) * scaleX / CELL_SIZE), y: Math.floor((clientY - rect.top) * scaleY / CELL_SIZE) }; }
+    let mouseGrid = { x: -1, y: -1 };
+    canvas.addEventListener('mousemove', (e) => { if (gameState.phase !== 'PREPARE' || !gameState.selectedType) return; const c = getGridCoords(e); mouseGrid.x = c.x; mouseGrid.y = c.y; });
+    canvas.addEventListener('touchmove', (e) => { if (gameState.phase !== 'PREPARE' || !gameState.selectedType) return; const c = getGridCoords(e); mouseGrid.x = c.x; mouseGrid.y = c.y; });
+    canvas.addEventListener('click', (e) => {
+        if (gameState.phase !== 'PREPARE' || !gameState.selectedType) return; const coords = getGridCoords(e); if (coords.x < 0 || coords.x >= COLS || coords.y < 0 || coords.y >= ROWS) return;
+        const proto = BUILDING_TYPES[gameState.selectedType]; if (gameState.gold < proto.cost) return; const rotated = getRotatedShape(proto.shape, gameState.rotation); let canPlace = true;
+        for (let offset of rotated) { const tx = coords.x + offset[0]; const ty = coords.y + offset[1]; if (tx < 0 || tx >= COLS || ty < 0 || ty >= ROWS || gameState.grid[ty][tx] !== null) { canPlace = false; break; } }
+        if (canPlace) {
+            play8BitSound('build'); gameState.gold -= proto.cost; const instance = { ...proto, id: proto.type + '_' + Date.now(), x: coords.x, y: coords.y, currentHp: proto.hp, rotatedShape: rotated, rotation: gameState.rotation };
+            rotated.forEach(offset => { gameState.grid[coords.y + offset[1]][coords.x + offset[0]] = instance; }); gameState.selectedType = null; document.getElementById('rotate-trigger').disabled = true; updateUI();
+        }
+    });
+    function selectBuilding(type) { play8BitSound('click'); if (gameState.phase !== 'PREPARE') return; gameState.selectedType = type; gameState.rotation = 0; document.getElementById('rotate-trigger').disabled = false; }
+    function updateUI() { document.getElementById('gold-val').innerText = gameState.gold; document.getElementById('income-val').innerText = calculateIncome(); document.getElementById('round-val').innerText = gameState.round; }
+    function removeBuilding(id) { for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { if (gameState.grid[r][c] && gameState.grid[r][c].id === id) gameState.grid[r][c] = null; } } }
+    
+    let frameCount = 0;
+    function gameLoop() { frameCount++; updateLogic(); draw(); requestAnimationFrame(gameLoop); }
+
+    function drawSprite(key, cx, cy, w, h, alpha) {
+        const img = IMAGES[key];
+        if (imagesReady && img && img.complete && img.naturalWidth > 0) {
+            if (alpha !== undefined) { ctx.save(); ctx.globalAlpha = alpha; }
+            ctx.drawImage(img, cx - w/2, cy - h/2, w, h);
+            if (alpha !== undefined) ctx.restore();
+            return true;
+        }
+        return false;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { ctx.strokeStyle = 'var(--grid-line)'; ctx.strokeRect(c * CELL_SIZE, r * CELL_SIZE, CELL_SIZE, CELL_SIZE); } }
+        const drawnIds = new Set();
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const b = gameState.grid[r][c];
+                if (b && !drawnIds.has(b.id)) {
+                    drawnIds.add(b.id); const shapeToDraw = b.type === 'castle' ? b.shape : b.rotatedShape;
+                    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                    shapeToDraw.forEach(([dx, dy]) => { minX = Math.min(minX, dx); minY = Math.min(minY, dy); maxX = Math.max(maxX, dx); maxY = Math.max(maxY, dy); });
+                    const bx = (b.x + minX) * CELL_SIZE; const by = (b.y + minY) * CELL_SIZE;
+                    const bw = (maxX - minX + 1) * CELL_SIZE; const bh = (maxY - minY + 1) * CELL_SIZE;
+
+                    // 底板：每個實際佔用格子淡淡塗色，方便辨識形狀
+                    shapeToDraw.forEach(offset => {
+                        const cx2 = (b.x + offset[0]) * CELL_SIZE; const cy2 = (b.y + offset[1]) * CELL_SIZE;
+                        ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(cx2 + 1, cy2 + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+                    });
+
+                    let drew = false;
+                    if (b.img) {
+                        const img = IMAGES[b.img];
+                        if (imagesReady && img && img.complete && img.naturalWidth > 0) {
+                            const rot = (b.rotation || 0) * Math.PI / 180;
+                            ctx.save();
+                            ctx.translate(bx + bw / 2, by + bh / 2);
+                            ctx.rotate(rot);
+                            // rotate 後座標系已旋轉，圖片仍用「原始未旋轉」的寬高繪製，
+                            // 這樣旋轉 90°/270° 時視覺上才會正確地變成長邊/短邊互換而不被拉伸。
+                            let oMinX = Infinity, oMinY = Infinity, oMaxX = -Infinity, oMaxY = -Infinity;
+                            (b.shape || shapeToDraw).forEach(([dx, dy]) => { oMinX = Math.min(oMinX, dx); oMinY = Math.min(oMinY, dy); oMaxX = Math.max(oMaxX, dx); oMaxY = Math.max(oMaxY, dy); });
+                            const origW = (oMaxX - oMinX + 1) * CELL_SIZE - 4;
+                            const origH = (oMaxY - oMinY + 1) * CELL_SIZE - 4;
+                            ctx.drawImage(img, -origW / 2, -origH / 2, origW, origH);
+                            ctx.restore();
+                            drew = true;
+                        }
+                    }
+                    if (!drew) {
+                        ctx.fillStyle = b.color; ctx.fillRect(bx + 2, by + 2, bw - 4, bh - 4);
+                        ctx.fillStyle = '#ffffff'; ctx.font = '15px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        ctx.fillText(b.name, bx + bw / 2, by + bh / 2);
+                    }
+
+                    ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(bx + 3, by + bh - 6, bw - 6, 3);
+                    ctx.fillStyle = '#2ecc71'; ctx.fillRect(bx + 3, by + bh - 6, (bw - 6) * (b.currentHp / b.maxHp), 3);
+                }
+            }
+        }
+        if (gameState.phase === 'PREPARE' && gameState.selectedType && mouseGrid.x !== -1) {
+            const proto = BUILDING_TYPES[gameState.selectedType];
+            const rotated = getRotatedShape(proto.shape, gameState.rotation);
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            rotated.forEach(([dx, dy]) => { minX = Math.min(minX, dx); minY = Math.min(minY, dy); maxX = Math.max(maxX, dx); maxY = Math.max(maxY, dy); });
+            const px = (mouseGrid.x + minX) * CELL_SIZE; const py = (mouseGrid.y + minY) * CELL_SIZE;
+            const pw = (maxX - minX + 1) * CELL_SIZE; const ph = (maxY - minY + 1) * CELL_SIZE;
+            ctx.fillStyle = 'rgba(241, 196, 15, 0.35)';
+            rotated.forEach(offset => {
+                const tx = mouseGrid.x + offset[0]; const ty = mouseGrid.y + offset[1];
+                if (tx >= 0 && tx < COLS && ty >= 0 && ty < ROWS) ctx.fillRect(tx * CELL_SIZE + 1, ty * CELL_SIZE + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+            });
+            if (proto.img) {
+                const img = IMAGES[proto.img];
+                if (imagesReady && img && img.complete && img.naturalWidth > 0) {
+                    let oMinX = Infinity, oMinY = Infinity, oMaxX = -Infinity, oMaxY = -Infinity;
+                    proto.shape.forEach(([dx, dy]) => { oMinX = Math.min(oMinX, dx); oMinY = Math.min(oMinY, dy); oMaxX = Math.max(oMaxX, dx); oMaxY = Math.max(oMaxY, dy); });
+                    const nw = (oMaxX - oMinX + 1) * CELL_SIZE - 4;
+                    const nh = (oMaxY - oMinY + 1) * CELL_SIZE - 4;
+                    const rot = (gameState.rotation || 0) * Math.PI / 180;
+                    ctx.save();
+                    ctx.globalAlpha = 0.55;
+                    ctx.translate(px + pw / 2, py + ph / 2);
+                    ctx.rotate(rot);
+                    ctx.drawImage(img, -nw / 2, -nh / 2, nw, nh);
+                    ctx.restore();
+                }
+            }
+        }
+
+        gameState.soldiers.forEach(s => {
+            if (!drawSprite(s.img, s.x, s.y, 24, 24)) { ctx.font = '14px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s.img === 'cavalry' ? '🐴' : '💂', s.x, s.y); }
+            ctx.fillStyle = '#34495e'; ctx.fillRect(s.x - 6, s.y - 16, 12, 2); ctx.fillStyle = '#3498db'; ctx.fillRect(s.x - 6, s.y - 16, 12 * (s.hp / s.maxHp), 2);
+        });
+        gameState.enemies.forEach(e => {
+            if (!drawSprite(e.img, e.x, e.y, 26, 26)) { ctx.font = '15px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('👾', e.x, e.y); }
+            ctx.fillStyle = 'red'; ctx.fillRect(e.x - 8, e.y - 18, 16, 2); ctx.fillStyle = 'lime'; ctx.fillRect(e.x - 8, e.y - 18, 16 * (e.hp / e.maxHp), 2);
+        });
+        gameState.projectiles.forEach(p => { if (!drawSprite(p.img, p.x, p.y, 16, 16)) { ctx.font = '12px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🧪', p.x, p.y); } });
+    }
+
+    initGame();
+    preloadImages().finally(() => { gameLoop(); });
+</script>
+</body>
+</html>
